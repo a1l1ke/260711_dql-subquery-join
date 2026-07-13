@@ -1,0 +1,20 @@
+SELECT * FROM FOOD_PRODUCT;
+
+SELECT
+    *
+FROM FOOD_PRODUCT
+ORDER BY PRICE DESC
+    LIMIT 1;
+-- 적어도 '가장 비싼 식품'의 가격을 같고 있는 제품이 1개다
+
+SELECT
+    MAX(PRICE)
+FROM FOOD_PRODUCT;
+
+SELECT *
+FROM FOOD_PRODUCT
+WHERE
+    PRICE = (
+        SELECT
+            MAX(PRICE)
+        FROM FOOD_PRODUCT);
