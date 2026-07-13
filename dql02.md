@@ -1,6 +1,6 @@
 # MySQL DQL 7단계 실행 순서 및 다중 그룹화 가이드 (DQL Deep Dive)
 
-본 가이드는 [dpl02.sql](file:///Users/morgan/Documents/workspace/260711_dql-subquery-join/dpl02.sql) 소스 코드 분석을 바탕으로, MySQL 환경에서 SQL 문법의 **7단계 논리적 실행 순서**, **다중 컬럼 그룹화**, **GROUP_CONCAT 함수**, 그리고 **ORDER BY/LIMIT 제약조건**에 대해 상세히 다룹니다.
+본 가이드는 [dql02.sql](file:///Users/morgan/Documents/workspace/260711_dql-subquery-join/dql02.sql) 소스 코드 분석을 바탕으로, MySQL 환경에서 SQL 문법의 **7단계 논리적 실행 순서**, **다중 컬럼 그룹화**, **GROUP_CONCAT 함수**, 그리고 **ORDER BY/LIMIT 제약조건**에 대해 상세히 다룹니다.
 
 ---
 
@@ -70,7 +70,7 @@ grid
 ---
 
 ### 🔗 GROUP_CONCAT()의 동작 원리
-[dpl02.sql:L71-85](file:///Users/morgan/Documents/workspace/260711_dql-subquery-join/dpl02.sql#L71-85)에 나오는 `GROUP_CONCAT`은 MySQL의 매우 강력한 그룹 집계 함수입니다.
+[dql02.sql:L71-85](file:///Users/morgan/Documents/workspace/260711_dql-subquery-join/dql02.sql#L71-85)에 나오는 `GROUP_CONCAT`은 MySQL의 매우 강력한 그룹 집계 함수입니다.
 
 - **역할**: 그룹화된 여러 행의 특정 컬럼 값들을 하나의 문자열로 결합(Concatenate)합니다.
 - **동작 방식**: 
@@ -82,7 +82,7 @@ grid
 ---
 
 ### 👥 다중 그룹화(Multi-Column GROUP BY)의 메커니즘
-[dpl02.sql:L130-135](file:///Users/morgan/Documents/workspace/260711_dql-subquery-join/dpl02.sql#L130-135)처럼 `GROUP BY A, B`로 작성하는 형태입니다.
+[dql02.sql:L130-135](file:///Users/morgan/Documents/workspace/260711_dql-subquery-join/dql02.sql#L130-135)처럼 `GROUP BY A, B`로 작성하는 형태입니다.
 
 1. DB 엔진은 먼저 첫 번째 컬럼 `A`를 기준으로 대그룹을 분류합니다.
 2. 분류된 대그룹 안에서 두 번째 컬럼 `B`를 기준으로 소그룹(서브그룹)을 분할합니다.
@@ -94,7 +94,7 @@ grid
 ## 3. 🎯 SQLD 자격증 대비 핵심 이론
 
 ### 🚫 GROUP BY와 ORDER BY의 제약 관계
-[dpl02.sql:L105-106](file:///Users/morgan/Documents/workspace/260711_dql-subquery-join/dpl02.sql#L105-106)에서 설명하는 제약 조건은 SQLD 자격증 단골 함정 문제입니다.
+[dql02.sql:L105-106](file:///Users/morgan/Documents/workspace/260711_dql-subquery-join/dql02.sql#L105-106)에서 설명하는 제약 조건은 SQLD 자격증 단골 함정 문제입니다.
 
 > [!IMPORTANT]
 > **GROUP BY 적용 시 ORDER BY에 올 수 있는 컬럼 제약**
