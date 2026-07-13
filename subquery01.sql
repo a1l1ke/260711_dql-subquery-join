@@ -77,3 +77,120 @@ INSERT INTO employee_projects (emp_id, project_id, assigned_date) VALUES
   (5, 102, '2026-03-10'),
   (3, 104, '2026-04-01'),
   (6, 104, '2026-04-05');
+
+-- 1. 스칼라 서브쿼리
+-- 한 행과 한 열로 반환 -> 컬럼 값 대용으로
+SELECT
+    *
+FROM employees e;
+
+SELECT
+    e.emp_id,
+    e.emp_name,
+    e.dept_id
+FROM employees e;
+
+SELECT
+    *
+FROM
+    departments d;
+
+SELECT
+    d.dept_id,
+    d.dept_name
+FROM
+    departments d;
+
+-- 1) 호출 순서 상 FROM 절을 넘어가면 테이블상의 컬럼을 호출 가능
+-- 2) SELECT 내부의 컬럼을 호출할 때 그 내부에 SELECT를 호출하면,
+-- 외부의 SELECT에서 이미 사용중인 값을 고스란히 사용할 수 있음
+-- 3) 스칼라 서브쿼리 -> 한 행, 한 열로 한정시키면 SELECT에서 값으로 사용할 수 있다
+SELECT
+    e.emp_id, -- 한 행마다 고정되어 있는 값 (emp, dept나 둘 다 1개로 고정)
+    e.emp_name,
+    e.dept_id,
+    (SELECT
+         d.dept_name
+     FROM
+         departments d
+     WHERE
+         e.dept_id = d.dept_id -- 고정되어있는 값을 통해서 한행/한열 이라는 제약.
+    ) AS dept_name
+FROM employees e;
+
+SELECT
+    d.dept_name
+FROM
+    departments d
+WHERE
+    20 = d.dept_id;
+
+SELECT
+    e.emp_id, -- 한 행마다 고정되어 있는 값 (emp, dept나 둘 다 1개로 고정)
+    e.emp_name,
+    e.dept_id,
+    (SELECT
+         d.dept_name
+     FROM
+         departments d
+     WHERE
+         10 = d.dept_id -- 고정되어있는 값을 통해서 한행/한열 이라는 제약.
+    ) AS dept_name
+FROM employees e;
+-- e.dept_id가 고정값으로 들어가면 2개 이상 데이터로 인해 스칼라 X
+-- d.dept_id면 1개의 데이터이긴한데 스칼라를 쓰는 이유가 X.
+
+-- 2. 비상관 서브쿼리
+-- 메인 쿼리 (외부 쿼리, 상위 쿼리...) 의 데이터를 공유하지 않고, 단독 수행되어서 '상수'
+
+-- 2-1. WHERE 절
+SELECT AVG(salary) FROM employees;
+
+SELECT
+    *
+FROM employees
+WHERE salary >
+      (SELECT AVG(salary) FROM employees);
+-- 서브쿼리는 괄호 필수 (먼저 실행 유도)
+
+SELECT salary FROM employees WHERE dept_id = 20;
+-- 3명, 8M / 6M / 4M
+
+SELECT
+    *
+FROM employees
+WHERE salary >
+          ANY (SELECT salary FROM employees WHERE dept_id = 20);
+-- 비상관 서브쿼리로 만들어진 데이터 중에 1개로도 조건을 만족시키면...
+-- 20(개발) -> 개발팀의 급여 중에 가장 최저값보다 높은사람.
+
+-- 집계(그룹)함수 활용하고 싶을 경우...
+
+-- 2-2. FROM. 인라인뷰
+SELECT
+    dept_id,
+    AVG(salary)
+FROM employees
+GROUP BY dept_id;
+
+SELECT
+    *
+FROM
+    (SELECT
+         dept_id,
+         AVG(salary) AS avg_salary
+     FROM employees
+     GROUP BY dept_id)
+        AS temp
+WHERE avg_salary >= 5000000;
+-- SELECT까지 마쳐서 alias까지 된 값을 깔끔하게 불러올 수 있다
+
+-- 2-3. HAVING
+SELECT
+    dept_id,
+    AVG(salary)
+FROM employees
+GROUP BY dept_id
+HAVING AVG(salary) > (SELECT AVG(salary) FROM employees);
+-- HAVING에서 전체 테이블 관련 집계함수를 쓰거나 다른 테이블의 값을 써주고 싶을 때
+-- HAVING 절 차에서 서브쿼리를 넣어줄 수 있다
